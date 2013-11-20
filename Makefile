@@ -241,7 +241,7 @@ showsize: elf
 # Flash the device  
 flash: hex
 #	$(OPENOCD) -f "openocd.cfg" -c "flash_image $(TARGET).elf; shutdown"
-	$(STLINK) write $(TARGET).elf 0x08000000
+	$(STLINK) write $(TARGET).bin 0x08000000
 
 
 # Target: clean project
