@@ -1,0 +1,946 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 3
+   4              		.fpu fpv4-sp-d16
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.thumb
+  15              		.file	"BlockQ.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.bss.sBlockingConsumerCount,"aw",%nobits
+  20              		.align	2
+  23              	sBlockingConsumerCount:
+  24 0000 00000000 		.space	6
+  24      0000
+  25 0006 0000     		.section	.bss.sBlockingProducerCount,"aw",%nobits
+  26              		.align	2
+  29              	sBlockingProducerCount:
+  30 0000 00000000 		.space	6
+  30      0000
+  31 0006 0000     		.section	.rodata
+  32              		.align	2
+  33              	.LC0:
+  34 0000 51436F6E 		.ascii	"QConsB1\000"
+  34      73423100 
+  35              		.align	2
+  36              	.LC1:
+  37 0008 5150726F 		.ascii	"QProdB2\000"
+  37      64423200 
+  38              		.align	2
+  39              	.LC2:
+  40 0010 51436F6E 		.ascii	"QConsB3\000"
+  40      73423300 
+  41              		.align	2
+  42              	.LC3:
+  43 0018 5150726F 		.ascii	"QProdB4\000"
+  43      64423400 
+  44              		.align	2
+  45              	.LC4:
+  46 0020 5150726F 		.ascii	"QProdB5\000"
+  46      64423500 
+  47              		.align	2
+  48              	.LC5:
+  49 0028 51436F6E 		.ascii	"QConsB6\000"
+  49      73423600 
+  50              		.section	.text.vStartBlockingQueueTasks,"ax",%progbits
+  51              		.align	2
+  52              		.global	vStartBlockingQueueTasks
+  53              		.thumb
+  54              		.thumb_func
+  56              	vStartBlockingQueueTasks:
+  57              	.LFB110:
+  58              		.file 1 "App/Common/Minimal/BlockQ.c"
+   1:App/Common/Minimal/BlockQ.c **** /*
+   2:App/Common/Minimal/BlockQ.c ****     FreeRTOS V7.5.3 - Copyright (C) 2013 Real Time Engineers Ltd. 
+   3:App/Common/Minimal/BlockQ.c ****     All rights reserved
+   4:App/Common/Minimal/BlockQ.c **** 
+   5:App/Common/Minimal/BlockQ.c ****     VISIT http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
+   6:App/Common/Minimal/BlockQ.c **** 
+   7:App/Common/Minimal/BlockQ.c ****     ***************************************************************************
+   8:App/Common/Minimal/BlockQ.c ****      *                                                                       *
+   9:App/Common/Minimal/BlockQ.c ****      *    FreeRTOS provides completely free yet professionally developed,    *
+  10:App/Common/Minimal/BlockQ.c ****      *    robust, strictly quality controlled, supported, and cross          *
+  11:App/Common/Minimal/BlockQ.c ****      *    platform software that has become a de facto standard.             *
+  12:App/Common/Minimal/BlockQ.c ****      *                                                                       *
+  13:App/Common/Minimal/BlockQ.c ****      *    Help yourself get started quickly and support the FreeRTOS         *
+  14:App/Common/Minimal/BlockQ.c ****      *    project by purchasing a FreeRTOS tutorial book, reference          *
+  15:App/Common/Minimal/BlockQ.c ****      *    manual, or both from: http://www.FreeRTOS.org/Documentation        *
+  16:App/Common/Minimal/BlockQ.c ****      *                                                                       *
+  17:App/Common/Minimal/BlockQ.c ****      *    Thank you!                                                         *
+  18:App/Common/Minimal/BlockQ.c ****      *                                                                       *
+  19:App/Common/Minimal/BlockQ.c ****     ***************************************************************************
+  20:App/Common/Minimal/BlockQ.c **** 
+  21:App/Common/Minimal/BlockQ.c ****     This file is part of the FreeRTOS distribution.
+  22:App/Common/Minimal/BlockQ.c **** 
+  23:App/Common/Minimal/BlockQ.c ****     FreeRTOS is free software; you can redistribute it and/or modify it under
+  24:App/Common/Minimal/BlockQ.c ****     the terms of the GNU General Public License (version 2) as published by the
+  25:App/Common/Minimal/BlockQ.c ****     Free Software Foundation >>!AND MODIFIED BY!<< the FreeRTOS exception.
+  26:App/Common/Minimal/BlockQ.c **** 
+  27:App/Common/Minimal/BlockQ.c ****     >>! NOTE: The modification to the GPL is included to allow you to distribute
+  28:App/Common/Minimal/BlockQ.c ****     >>! a combined work that includes FreeRTOS without being obliged to provide
+  29:App/Common/Minimal/BlockQ.c ****     >>! the source code for proprietary components outside of the FreeRTOS
+  30:App/Common/Minimal/BlockQ.c ****     >>! kernel.
+  31:App/Common/Minimal/BlockQ.c **** 
+  32:App/Common/Minimal/BlockQ.c ****     FreeRTOS is distributed in the hope that it will be useful, but WITHOUT ANY
+  33:App/Common/Minimal/BlockQ.c ****     WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  34:App/Common/Minimal/BlockQ.c ****     FOR A PARTICULAR PURPOSE.  Full license text is available from the following
+  35:App/Common/Minimal/BlockQ.c ****     link: http://www.freertos.org/a00114.html
+  36:App/Common/Minimal/BlockQ.c **** 
+  37:App/Common/Minimal/BlockQ.c ****     1 tab == 4 spaces!
+  38:App/Common/Minimal/BlockQ.c **** 
+  39:App/Common/Minimal/BlockQ.c ****     ***************************************************************************
+  40:App/Common/Minimal/BlockQ.c ****      *                                                                       *
+  41:App/Common/Minimal/BlockQ.c ****      *    Having a problem?  Start by reading the FAQ "My application does   *
+  42:App/Common/Minimal/BlockQ.c ****      *    not run, what could be wrong?"                                     *
+  43:App/Common/Minimal/BlockQ.c ****      *                                                                       *
+  44:App/Common/Minimal/BlockQ.c ****      *    http://www.FreeRTOS.org/FAQHelp.html                               *
+  45:App/Common/Minimal/BlockQ.c ****      *                                                                       *
+  46:App/Common/Minimal/BlockQ.c ****     ***************************************************************************
+  47:App/Common/Minimal/BlockQ.c **** 
+  48:App/Common/Minimal/BlockQ.c ****     http://www.FreeRTOS.org - Documentation, books, training, latest versions,
+  49:App/Common/Minimal/BlockQ.c ****     license and Real Time Engineers Ltd. contact details.
+  50:App/Common/Minimal/BlockQ.c **** 
+  51:App/Common/Minimal/BlockQ.c ****     http://www.FreeRTOS.org/plus - A selection of FreeRTOS ecosystem products,
+  52:App/Common/Minimal/BlockQ.c ****     including FreeRTOS+Trace - an indispensable productivity tool, a DOS
+  53:App/Common/Minimal/BlockQ.c ****     compatible FAT file system, and our tiny thread aware UDP/IP stack.
+  54:App/Common/Minimal/BlockQ.c **** 
+  55:App/Common/Minimal/BlockQ.c ****     http://www.OpenRTOS.com - Real Time Engineers ltd license FreeRTOS to High
+  56:App/Common/Minimal/BlockQ.c ****     Integrity Systems to sell under the OpenRTOS brand.  Low cost OpenRTOS
+  57:App/Common/Minimal/BlockQ.c ****     licenses offer ticketed support, indemnification and middleware.
+  58:App/Common/Minimal/BlockQ.c **** 
+  59:App/Common/Minimal/BlockQ.c ****     http://www.SafeRTOS.com - High Integrity Systems also provide a safety
+  60:App/Common/Minimal/BlockQ.c ****     engineered and independently SIL3 certified version for use in safety and
+  61:App/Common/Minimal/BlockQ.c ****     mission critical applications that require provable dependability.
+  62:App/Common/Minimal/BlockQ.c **** 
+  63:App/Common/Minimal/BlockQ.c ****     1 tab == 4 spaces!
+  64:App/Common/Minimal/BlockQ.c **** */
+  65:App/Common/Minimal/BlockQ.c **** 
+  66:App/Common/Minimal/BlockQ.c **** /*
+  67:App/Common/Minimal/BlockQ.c ****  * Creates six tasks that operate on three queues as follows:
+  68:App/Common/Minimal/BlockQ.c ****  *
+  69:App/Common/Minimal/BlockQ.c ****  * The first two tasks send and receive an incrementing number to/from a queue.
+  70:App/Common/Minimal/BlockQ.c ****  * One task acts as a producer and the other as the consumer.  The consumer is a
+  71:App/Common/Minimal/BlockQ.c ****  * higher priority than the producer and is set to block on queue reads.  The queue
+  72:App/Common/Minimal/BlockQ.c ****  * only has space for one item - as soon as the producer posts a message on the
+  73:App/Common/Minimal/BlockQ.c ****  * queue the consumer will unblock, pre-empt the producer, and remove the item.
+  74:App/Common/Minimal/BlockQ.c ****  *
+  75:App/Common/Minimal/BlockQ.c ****  * The second two tasks work the other way around.  Again the queue used only has
+  76:App/Common/Minimal/BlockQ.c ****  * enough space for one item.  This time the consumer has a lower priority than the
+  77:App/Common/Minimal/BlockQ.c ****  * producer.  The producer will try to post on the queue blocking when the queue is
+  78:App/Common/Minimal/BlockQ.c ****  * full.  When the consumer wakes it will remove the item from the queue, causing
+  79:App/Common/Minimal/BlockQ.c ****  * the producer to unblock, pre-empt the consumer, and immediately re-fill the
+  80:App/Common/Minimal/BlockQ.c ****  * queue.
+  81:App/Common/Minimal/BlockQ.c ****  *
+  82:App/Common/Minimal/BlockQ.c ****  * The last two tasks use the same queue producer and consumer functions.  This time the queue has
+  83:App/Common/Minimal/BlockQ.c ****  * enough space for lots of items and the tasks operate at the same priority.  The
+  84:App/Common/Minimal/BlockQ.c ****  * producer will execute, placing items into the queue.  The consumer will start
+  85:App/Common/Minimal/BlockQ.c ****  * executing when either the queue becomes full (causing the producer to block) or
+  86:App/Common/Minimal/BlockQ.c ****  * a context switch occurs (tasks of the same priority will time slice).
+  87:App/Common/Minimal/BlockQ.c ****  *
+  88:App/Common/Minimal/BlockQ.c ****  */
+  89:App/Common/Minimal/BlockQ.c **** 
+  90:App/Common/Minimal/BlockQ.c **** #include <stdlib.h>
+  91:App/Common/Minimal/BlockQ.c **** 
+  92:App/Common/Minimal/BlockQ.c **** /* Scheduler include files. */
+  93:App/Common/Minimal/BlockQ.c **** #include "FreeRTOS.h"
+  94:App/Common/Minimal/BlockQ.c **** #include "task.h"
+  95:App/Common/Minimal/BlockQ.c **** #include "queue.h"
+  96:App/Common/Minimal/BlockQ.c **** 
+  97:App/Common/Minimal/BlockQ.c **** /* Demo program include files. */
+  98:App/Common/Minimal/BlockQ.c **** #include "BlockQ.h"
+  99:App/Common/Minimal/BlockQ.c **** 
+ 100:App/Common/Minimal/BlockQ.c **** #define blckqSTACK_SIZE		configMINIMAL_STACK_SIZE
+ 101:App/Common/Minimal/BlockQ.c **** #define blckqNUM_TASK_SETS	( 3 )
+ 102:App/Common/Minimal/BlockQ.c **** 
+ 103:App/Common/Minimal/BlockQ.c **** /* Structure used to pass parameters to the blocking queue tasks. */
+ 104:App/Common/Minimal/BlockQ.c **** typedef struct BLOCKING_QUEUE_PARAMETERS
+ 105:App/Common/Minimal/BlockQ.c **** {
+ 106:App/Common/Minimal/BlockQ.c **** 	xQueueHandle xQueue;					/*< The queue to be used by the task. */
+ 107:App/Common/Minimal/BlockQ.c **** 	portTickType xBlockTime;				/*< The block time to use on queue reads/writes. */
+ 108:App/Common/Minimal/BlockQ.c **** 	volatile short *psCheckVariable;	/*< Incremented on each successful cycle to check the task is sti
+ 109:App/Common/Minimal/BlockQ.c **** } xBlockingQueueParameters;
+ 110:App/Common/Minimal/BlockQ.c **** 
+ 111:App/Common/Minimal/BlockQ.c **** /* Task function that creates an incrementing number and posts it on a queue. */
+ 112:App/Common/Minimal/BlockQ.c **** static portTASK_FUNCTION_PROTO( vBlockingQueueProducer, pvParameters );
+ 113:App/Common/Minimal/BlockQ.c **** 
+ 114:App/Common/Minimal/BlockQ.c **** /* Task function that removes the incrementing number from a queue and checks that
+ 115:App/Common/Minimal/BlockQ.c **** it is the expected number. */
+ 116:App/Common/Minimal/BlockQ.c **** static portTASK_FUNCTION_PROTO( vBlockingQueueConsumer, pvParameters );
+ 117:App/Common/Minimal/BlockQ.c **** 
+ 118:App/Common/Minimal/BlockQ.c **** /* Variables which are incremented each time an item is removed from a queue, and
+ 119:App/Common/Minimal/BlockQ.c **** found to be the expected value.
+ 120:App/Common/Minimal/BlockQ.c **** These are used to check that the tasks are still running. */
+ 121:App/Common/Minimal/BlockQ.c **** static volatile short sBlockingConsumerCount[ blckqNUM_TASK_SETS ] = { ( unsigned short ) 0, ( unsi
+ 122:App/Common/Minimal/BlockQ.c **** 
+ 123:App/Common/Minimal/BlockQ.c **** /* Variable which are incremented each time an item is posted on a queue.   These
+ 124:App/Common/Minimal/BlockQ.c **** are used to check that the tasks are still running. */
+ 125:App/Common/Minimal/BlockQ.c **** static volatile short sBlockingProducerCount[ blckqNUM_TASK_SETS ] = { ( unsigned short ) 0, ( unsi
+ 126:App/Common/Minimal/BlockQ.c **** 
+ 127:App/Common/Minimal/BlockQ.c **** /*-----------------------------------------------------------*/
+ 128:App/Common/Minimal/BlockQ.c **** 
+ 129:App/Common/Minimal/BlockQ.c **** void vStartBlockingQueueTasks( unsigned portBASE_TYPE uxPriority )
+ 130:App/Common/Minimal/BlockQ.c **** {
+  59              		.loc 1 130 0
+  60              		.cfi_startproc
+  61              		@ args = 0, pretend = 0, frame = 48
+  62              		@ frame_needed = 1, uses_anonymous_args = 0
+  63 0000 80B5     		push	{r7, lr}
+  64              	.LCFI0:
+  65              		.cfi_def_cfa_offset 8
+  66              		.cfi_offset 7, -8
+  67              		.cfi_offset 14, -4
+  68 0002 90B0     		sub	sp, sp, #64
+  69              	.LCFI1:
+  70              		.cfi_def_cfa_offset 72
+  71 0004 04AF     		add	r7, sp, #16
+  72              	.LCFI2:
+  73              		.cfi_def_cfa 7, 56
+  74 0006 7860     		str	r0, [r7, #4]
+ 131:App/Common/Minimal/BlockQ.c **** xBlockingQueueParameters *pxQueueParameters1, *pxQueueParameters2;
+ 132:App/Common/Minimal/BlockQ.c **** xBlockingQueueParameters *pxQueueParameters3, *pxQueueParameters4;
+ 133:App/Common/Minimal/BlockQ.c **** xBlockingQueueParameters *pxQueueParameters5, *pxQueueParameters6;
+ 134:App/Common/Minimal/BlockQ.c **** const unsigned portBASE_TYPE uxQueueSize1 = 1, uxQueueSize5 = 5;
+  75              		.loc 1 134 0
+  76 0008 4FF00103 		mov	r3, #1
+  77 000c FB62     		str	r3, [r7, #44]
+  78 000e 4FF00503 		mov	r3, #5
+  79 0012 BB62     		str	r3, [r7, #40]
+ 135:App/Common/Minimal/BlockQ.c **** const portTickType xBlockTime = ( portTickType ) 1000 / portTICK_RATE_MS;
+  80              		.loc 1 135 0
+  81 0014 4FF47A73 		mov	r3, #1000
+  82 0018 7B62     		str	r3, [r7, #36]
+ 136:App/Common/Minimal/BlockQ.c **** const portTickType xDontBlock = ( portTickType ) 0;
+  83              		.loc 1 136 0
+  84 001a 4FF00003 		mov	r3, #0
+  85 001e 3B62     		str	r3, [r7, #32]
+ 137:App/Common/Minimal/BlockQ.c **** 
+ 138:App/Common/Minimal/BlockQ.c **** 	/* Create the first two tasks as described at the top of the file. */
+ 139:App/Common/Minimal/BlockQ.c **** 	
+ 140:App/Common/Minimal/BlockQ.c **** 	/* First create the structure used to pass parameters to the consumer tasks. */
+ 141:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters1 = ( xBlockingQueueParameters * ) pvPortMalloc( sizeof( xBlockingQueueParameters
+  86              		.loc 1 141 0
+  87 0020 4FF00C00 		mov	r0, #12
+  88 0024 FFF7FEFF 		bl	pvPortMalloc
+  89 0028 F861     		str	r0, [r7, #28]
+ 142:App/Common/Minimal/BlockQ.c **** 
+ 143:App/Common/Minimal/BlockQ.c **** 	/* Create the queue used by the first two tasks to pass the incrementing number.
+ 144:App/Common/Minimal/BlockQ.c **** 	Pass a pointer to the queue in the parameter structure. */
+ 145:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters1->xQueue = xQueueCreate( uxQueueSize1, ( unsigned portBASE_TYPE ) sizeof( unsign
+  90              		.loc 1 145 0
+  91 002a F86A     		ldr	r0, [r7, #44]
+  92 002c 4FF00201 		mov	r1, #2
+  93 0030 4FF00002 		mov	r2, #0
+  94 0034 FFF7FEFF 		bl	xQueueGenericCreate
+  95 0038 0246     		mov	r2, r0
+  96 003a FB69     		ldr	r3, [r7, #28]
+  97 003c 1A60     		str	r2, [r3, #0]
+ 146:App/Common/Minimal/BlockQ.c **** 
+ 147:App/Common/Minimal/BlockQ.c **** 	/* The consumer is created first so gets a block time as described above. */
+ 148:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters1->xBlockTime = xBlockTime;
+  98              		.loc 1 148 0
+  99 003e FB69     		ldr	r3, [r7, #28]
+ 100 0040 7A6A     		ldr	r2, [r7, #36]
+ 101 0042 5A60     		str	r2, [r3, #4]
+ 149:App/Common/Minimal/BlockQ.c **** 
+ 150:App/Common/Minimal/BlockQ.c **** 	/* Pass in the variable that this task is going to increment so we can check it
+ 151:App/Common/Minimal/BlockQ.c **** 	is still running. */
+ 152:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters1->psCheckVariable = &( sBlockingConsumerCount[ 0 ] );
+ 102              		.loc 1 152 0
+ 103 0044 FA69     		ldr	r2, [r7, #28]
+ 104 0046 40F20003 		movw	r3, #:lower16:sBlockingConsumerCount
+ 105 004a C0F20003 		movt	r3, #:upper16:sBlockingConsumerCount
+ 106 004e 9360     		str	r3, [r2, #8]
+ 153:App/Common/Minimal/BlockQ.c **** 		
+ 154:App/Common/Minimal/BlockQ.c **** 	/* Create the structure used to pass parameters to the producer task. */
+ 155:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters2 = ( xBlockingQueueParameters * ) pvPortMalloc( sizeof( xBlockingQueueParameters
+ 107              		.loc 1 155 0
+ 108 0050 4FF00C00 		mov	r0, #12
+ 109 0054 FFF7FEFF 		bl	pvPortMalloc
+ 110 0058 B861     		str	r0, [r7, #24]
+ 156:App/Common/Minimal/BlockQ.c **** 
+ 157:App/Common/Minimal/BlockQ.c **** 	/* Pass the queue to this task also, using the parameter structure. */
+ 158:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters2->xQueue = pxQueueParameters1->xQueue;
+ 111              		.loc 1 158 0
+ 112 005a FB69     		ldr	r3, [r7, #28]
+ 113 005c 1A68     		ldr	r2, [r3, #0]
+ 114 005e BB69     		ldr	r3, [r7, #24]
+ 115 0060 1A60     		str	r2, [r3, #0]
+ 159:App/Common/Minimal/BlockQ.c **** 
+ 160:App/Common/Minimal/BlockQ.c **** 	/* The producer is not going to block - as soon as it posts the consumer will
+ 161:App/Common/Minimal/BlockQ.c **** 	wake and remove the item so the producer should always have room to post. */
+ 162:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters2->xBlockTime = xDontBlock;
+ 116              		.loc 1 162 0
+ 117 0062 BB69     		ldr	r3, [r7, #24]
+ 118 0064 3A6A     		ldr	r2, [r7, #32]
+ 119 0066 5A60     		str	r2, [r3, #4]
+ 163:App/Common/Minimal/BlockQ.c **** 
+ 164:App/Common/Minimal/BlockQ.c **** 	/* Pass in the variable that this task is going to increment so we can check
+ 165:App/Common/Minimal/BlockQ.c **** 	it is still running. */
+ 166:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters2->psCheckVariable = &( sBlockingProducerCount[ 0 ] );
+ 120              		.loc 1 166 0
+ 121 0068 BA69     		ldr	r2, [r7, #24]
+ 122 006a 40F20003 		movw	r3, #:lower16:sBlockingProducerCount
+ 123 006e C0F20003 		movt	r3, #:upper16:sBlockingProducerCount
+ 124 0072 9360     		str	r3, [r2, #8]
+ 167:App/Common/Minimal/BlockQ.c **** 
+ 168:App/Common/Minimal/BlockQ.c **** 
+ 169:App/Common/Minimal/BlockQ.c **** 	/* Note the producer has a lower priority than the consumer when the tasks are
+ 170:App/Common/Minimal/BlockQ.c **** 	spawned. */
+ 171:App/Common/Minimal/BlockQ.c **** 	xTaskCreate( vBlockingQueueConsumer, ( signed char * ) "QConsB1", blckqSTACK_SIZE, ( void * ) pxQu
+ 125              		.loc 1 171 0
+ 126 0074 7B68     		ldr	r3, [r7, #4]
+ 127 0076 0093     		str	r3, [sp, #0]
+ 128 0078 4FF00003 		mov	r3, #0
+ 129 007c 0193     		str	r3, [sp, #4]
+ 130 007e 4FF00003 		mov	r3, #0
+ 131 0082 0293     		str	r3, [sp, #8]
+ 132 0084 4FF00003 		mov	r3, #0
+ 133 0088 0393     		str	r3, [sp, #12]
+ 134 008a 40F20000 		movw	r0, #:lower16:vBlockingQueueConsumer
+ 135 008e C0F20000 		movt	r0, #:upper16:vBlockingQueueConsumer
+ 136 0092 40F20001 		movw	r1, #:lower16:.LC0
+ 137 0096 C0F20001 		movt	r1, #:upper16:.LC0
+ 138 009a 4FF08202 		mov	r2, #130
+ 139 009e FB69     		ldr	r3, [r7, #28]
+ 140 00a0 FFF7FEFF 		bl	xTaskGenericCreate
+ 172:App/Common/Minimal/BlockQ.c **** 	xTaskCreate( vBlockingQueueProducer, ( signed char * ) "QProdB2", blckqSTACK_SIZE, ( void * ) pxQu
+ 141              		.loc 1 172 0
+ 142 00a4 4FF00003 		mov	r3, #0
+ 143 00a8 0093     		str	r3, [sp, #0]
+ 144 00aa 4FF00003 		mov	r3, #0
+ 145 00ae 0193     		str	r3, [sp, #4]
+ 146 00b0 4FF00003 		mov	r3, #0
+ 147 00b4 0293     		str	r3, [sp, #8]
+ 148 00b6 4FF00003 		mov	r3, #0
+ 149 00ba 0393     		str	r3, [sp, #12]
+ 150 00bc 40F20000 		movw	r0, #:lower16:vBlockingQueueProducer
+ 151 00c0 C0F20000 		movt	r0, #:upper16:vBlockingQueueProducer
+ 152 00c4 40F20001 		movw	r1, #:lower16:.LC1
+ 153 00c8 C0F20001 		movt	r1, #:upper16:.LC1
+ 154 00cc 4FF08202 		mov	r2, #130
+ 155 00d0 BB69     		ldr	r3, [r7, #24]
+ 156 00d2 FFF7FEFF 		bl	xTaskGenericCreate
+ 173:App/Common/Minimal/BlockQ.c **** 
+ 174:App/Common/Minimal/BlockQ.c **** 	
+ 175:App/Common/Minimal/BlockQ.c **** 
+ 176:App/Common/Minimal/BlockQ.c **** 	/* Create the second two tasks as described at the top of the file.   This uses
+ 177:App/Common/Minimal/BlockQ.c **** 	the same mechanism but reverses the task priorities. */
+ 178:App/Common/Minimal/BlockQ.c **** 
+ 179:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters3 = ( xBlockingQueueParameters * ) pvPortMalloc( sizeof( xBlockingQueueParameters
+ 157              		.loc 1 179 0
+ 158 00d6 4FF00C00 		mov	r0, #12
+ 159 00da FFF7FEFF 		bl	pvPortMalloc
+ 160 00de 7861     		str	r0, [r7, #20]
+ 180:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters3->xQueue = xQueueCreate( uxQueueSize1, ( unsigned portBASE_TYPE ) sizeof( unsign
+ 161              		.loc 1 180 0
+ 162 00e0 F86A     		ldr	r0, [r7, #44]
+ 163 00e2 4FF00201 		mov	r1, #2
+ 164 00e6 4FF00002 		mov	r2, #0
+ 165 00ea FFF7FEFF 		bl	xQueueGenericCreate
+ 166 00ee 0246     		mov	r2, r0
+ 167 00f0 7B69     		ldr	r3, [r7, #20]
+ 168 00f2 1A60     		str	r2, [r3, #0]
+ 181:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters3->xBlockTime = xDontBlock;
+ 169              		.loc 1 181 0
+ 170 00f4 7B69     		ldr	r3, [r7, #20]
+ 171 00f6 3A6A     		ldr	r2, [r7, #32]
+ 172 00f8 5A60     		str	r2, [r3, #4]
+ 182:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters3->psCheckVariable = &( sBlockingProducerCount[ 1 ] );
+ 173              		.loc 1 182 0
+ 174 00fa 7B69     		ldr	r3, [r7, #20]
+ 175 00fc 4D4A     		ldr	r2, .L2
+ 176 00fe 9A60     		str	r2, [r3, #8]
+ 183:App/Common/Minimal/BlockQ.c **** 
+ 184:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters4 = ( xBlockingQueueParameters * ) pvPortMalloc( sizeof( xBlockingQueueParameters
+ 177              		.loc 1 184 0
+ 178 0100 4FF00C00 		mov	r0, #12
+ 179 0104 FFF7FEFF 		bl	pvPortMalloc
+ 180 0108 3861     		str	r0, [r7, #16]
+ 185:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters4->xQueue = pxQueueParameters3->xQueue;
+ 181              		.loc 1 185 0
+ 182 010a 7B69     		ldr	r3, [r7, #20]
+ 183 010c 1A68     		ldr	r2, [r3, #0]
+ 184 010e 3B69     		ldr	r3, [r7, #16]
+ 185 0110 1A60     		str	r2, [r3, #0]
+ 186:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters4->xBlockTime = xBlockTime;
+ 186              		.loc 1 186 0
+ 187 0112 3B69     		ldr	r3, [r7, #16]
+ 188 0114 7A6A     		ldr	r2, [r7, #36]
+ 189 0116 5A60     		str	r2, [r3, #4]
+ 187:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters4->psCheckVariable = &( sBlockingConsumerCount[ 1 ] );
+ 190              		.loc 1 187 0
+ 191 0118 3B69     		ldr	r3, [r7, #16]
+ 192 011a 474A     		ldr	r2, .L2+4
+ 193 011c 9A60     		str	r2, [r3, #8]
+ 188:App/Common/Minimal/BlockQ.c **** 
+ 189:App/Common/Minimal/BlockQ.c **** 	xTaskCreate( vBlockingQueueConsumer, ( signed char * ) "QConsB3", blckqSTACK_SIZE, ( void * ) pxQu
+ 194              		.loc 1 189 0
+ 195 011e 4FF00003 		mov	r3, #0
+ 196 0122 0093     		str	r3, [sp, #0]
+ 197 0124 4FF00003 		mov	r3, #0
+ 198 0128 0193     		str	r3, [sp, #4]
+ 199 012a 4FF00003 		mov	r3, #0
+ 200 012e 0293     		str	r3, [sp, #8]
+ 201 0130 4FF00003 		mov	r3, #0
+ 202 0134 0393     		str	r3, [sp, #12]
+ 203 0136 40F20000 		movw	r0, #:lower16:vBlockingQueueConsumer
+ 204 013a C0F20000 		movt	r0, #:upper16:vBlockingQueueConsumer
+ 205 013e 40F20001 		movw	r1, #:lower16:.LC2
+ 206 0142 C0F20001 		movt	r1, #:upper16:.LC2
+ 207 0146 4FF08202 		mov	r2, #130
+ 208 014a 7B69     		ldr	r3, [r7, #20]
+ 209 014c FFF7FEFF 		bl	xTaskGenericCreate
+ 190:App/Common/Minimal/BlockQ.c **** 	xTaskCreate( vBlockingQueueProducer, ( signed char * ) "QProdB4", blckqSTACK_SIZE, ( void * ) pxQu
+ 210              		.loc 1 190 0
+ 211 0150 7B68     		ldr	r3, [r7, #4]
+ 212 0152 0093     		str	r3, [sp, #0]
+ 213 0154 4FF00003 		mov	r3, #0
+ 214 0158 0193     		str	r3, [sp, #4]
+ 215 015a 4FF00003 		mov	r3, #0
+ 216 015e 0293     		str	r3, [sp, #8]
+ 217 0160 4FF00003 		mov	r3, #0
+ 218 0164 0393     		str	r3, [sp, #12]
+ 219 0166 40F20000 		movw	r0, #:lower16:vBlockingQueueProducer
+ 220 016a C0F20000 		movt	r0, #:upper16:vBlockingQueueProducer
+ 221 016e 40F20001 		movw	r1, #:lower16:.LC3
+ 222 0172 C0F20001 		movt	r1, #:upper16:.LC3
+ 223 0176 4FF08202 		mov	r2, #130
+ 224 017a 3B69     		ldr	r3, [r7, #16]
+ 225 017c FFF7FEFF 		bl	xTaskGenericCreate
+ 191:App/Common/Minimal/BlockQ.c **** 
+ 192:App/Common/Minimal/BlockQ.c **** 
+ 193:App/Common/Minimal/BlockQ.c **** 
+ 194:App/Common/Minimal/BlockQ.c **** 	/* Create the last two tasks as described above.  The mechanism is again just
+ 195:App/Common/Minimal/BlockQ.c **** 	the same.  This time both parameter structures are given a block time. */
+ 196:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters5 = ( xBlockingQueueParameters * ) pvPortMalloc( sizeof( xBlockingQueueParameters
+ 226              		.loc 1 196 0
+ 227 0180 4FF00C00 		mov	r0, #12
+ 228 0184 FFF7FEFF 		bl	pvPortMalloc
+ 229 0188 F860     		str	r0, [r7, #12]
+ 197:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters5->xQueue = xQueueCreate( uxQueueSize5, ( unsigned portBASE_TYPE ) sizeof( unsign
+ 230              		.loc 1 197 0
+ 231 018a B86A     		ldr	r0, [r7, #40]
+ 232 018c 4FF00201 		mov	r1, #2
+ 233 0190 4FF00002 		mov	r2, #0
+ 234 0194 FFF7FEFF 		bl	xQueueGenericCreate
+ 235 0198 0246     		mov	r2, r0
+ 236 019a FB68     		ldr	r3, [r7, #12]
+ 237 019c 1A60     		str	r2, [r3, #0]
+ 198:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters5->xBlockTime = xBlockTime;
+ 238              		.loc 1 198 0
+ 239 019e FB68     		ldr	r3, [r7, #12]
+ 240 01a0 7A6A     		ldr	r2, [r7, #36]
+ 241 01a2 5A60     		str	r2, [r3, #4]
+ 199:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters5->psCheckVariable = &( sBlockingProducerCount[ 2 ] );
+ 242              		.loc 1 199 0
+ 243 01a4 FB68     		ldr	r3, [r7, #12]
+ 244 01a6 254A     		ldr	r2, .L2+8
+ 245 01a8 9A60     		str	r2, [r3, #8]
+ 200:App/Common/Minimal/BlockQ.c **** 
+ 201:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters6 = ( xBlockingQueueParameters * ) pvPortMalloc( sizeof( xBlockingQueueParameters
+ 246              		.loc 1 201 0
+ 247 01aa 4FF00C00 		mov	r0, #12
+ 248 01ae FFF7FEFF 		bl	pvPortMalloc
+ 249 01b2 B860     		str	r0, [r7, #8]
+ 202:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters6->xQueue = pxQueueParameters5->xQueue;
+ 250              		.loc 1 202 0
+ 251 01b4 FB68     		ldr	r3, [r7, #12]
+ 252 01b6 1A68     		ldr	r2, [r3, #0]
+ 253 01b8 BB68     		ldr	r3, [r7, #8]
+ 254 01ba 1A60     		str	r2, [r3, #0]
+ 203:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters6->xBlockTime = xBlockTime;
+ 255              		.loc 1 203 0
+ 256 01bc BB68     		ldr	r3, [r7, #8]
+ 257 01be 7A6A     		ldr	r2, [r7, #36]
+ 258 01c0 5A60     		str	r2, [r3, #4]
+ 204:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters6->psCheckVariable = &( sBlockingConsumerCount[ 2 ] );	
+ 259              		.loc 1 204 0
+ 260 01c2 BB68     		ldr	r3, [r7, #8]
+ 261 01c4 1E4A     		ldr	r2, .L2+12
+ 262 01c6 9A60     		str	r2, [r3, #8]
+ 205:App/Common/Minimal/BlockQ.c **** 
+ 206:App/Common/Minimal/BlockQ.c **** 	xTaskCreate( vBlockingQueueProducer, ( signed char * ) "QProdB5", blckqSTACK_SIZE, ( void * ) pxQu
+ 263              		.loc 1 206 0
+ 264 01c8 4FF00003 		mov	r3, #0
+ 265 01cc 0093     		str	r3, [sp, #0]
+ 266 01ce 4FF00003 		mov	r3, #0
+ 267 01d2 0193     		str	r3, [sp, #4]
+ 268 01d4 4FF00003 		mov	r3, #0
+ 269 01d8 0293     		str	r3, [sp, #8]
+ 270 01da 4FF00003 		mov	r3, #0
+ 271 01de 0393     		str	r3, [sp, #12]
+ 272 01e0 40F20000 		movw	r0, #:lower16:vBlockingQueueProducer
+ 273 01e4 C0F20000 		movt	r0, #:upper16:vBlockingQueueProducer
+ 274 01e8 40F20001 		movw	r1, #:lower16:.LC4
+ 275 01ec C0F20001 		movt	r1, #:upper16:.LC4
+ 276 01f0 4FF08202 		mov	r2, #130
+ 277 01f4 FB68     		ldr	r3, [r7, #12]
+ 278 01f6 FFF7FEFF 		bl	xTaskGenericCreate
+ 207:App/Common/Minimal/BlockQ.c **** 	xTaskCreate( vBlockingQueueConsumer, ( signed char * ) "QConsB6", blckqSTACK_SIZE, ( void * ) pxQu
+ 279              		.loc 1 207 0
+ 280 01fa 4FF00003 		mov	r3, #0
+ 281 01fe 0093     		str	r3, [sp, #0]
+ 282 0200 4FF00003 		mov	r3, #0
+ 283 0204 0193     		str	r3, [sp, #4]
+ 284 0206 4FF00003 		mov	r3, #0
+ 285 020a 0293     		str	r3, [sp, #8]
+ 286 020c 4FF00003 		mov	r3, #0
+ 287 0210 0393     		str	r3, [sp, #12]
+ 288 0212 40F20000 		movw	r0, #:lower16:vBlockingQueueConsumer
+ 289 0216 C0F20000 		movt	r0, #:upper16:vBlockingQueueConsumer
+ 290 021a 40F20001 		movw	r1, #:lower16:.LC5
+ 291 021e C0F20001 		movt	r1, #:upper16:.LC5
+ 292 0222 4FF08202 		mov	r2, #130
+ 293 0226 BB68     		ldr	r3, [r7, #8]
+ 294 0228 FFF7FEFF 		bl	xTaskGenericCreate
+ 208:App/Common/Minimal/BlockQ.c **** }
+ 295              		.loc 1 208 0
+ 296 022c 07F13007 		add	r7, r7, #48
+ 297 0230 BD46     		mov	sp, r7
+ 298 0232 80BD     		pop	{r7, pc}
+ 299              	.L3:
+ 300              		.align	2
+ 301              	.L2:
+ 302 0234 02000000 		.word	sBlockingProducerCount+2
+ 303 0238 02000000 		.word	sBlockingConsumerCount+2
+ 304 023c 04000000 		.word	sBlockingProducerCount+4
+ 305 0240 04000000 		.word	sBlockingConsumerCount+4
+ 306              		.cfi_endproc
+ 307              	.LFE110:
+ 309              		.section	.text.vBlockingQueueProducer,"ax",%progbits
+ 310              		.align	2
+ 311              		.thumb
+ 312              		.thumb_func
+ 314              	vBlockingQueueProducer:
+ 315              	.LFB111:
+ 209:App/Common/Minimal/BlockQ.c **** /*-----------------------------------------------------------*/
+ 210:App/Common/Minimal/BlockQ.c **** 
+ 211:App/Common/Minimal/BlockQ.c **** static portTASK_FUNCTION( vBlockingQueueProducer, pvParameters )
+ 212:App/Common/Minimal/BlockQ.c **** {
+ 316              		.loc 1 212 0
+ 317              		.cfi_startproc
+ 318              		@ args = 0, pretend = 0, frame = 24
+ 319              		@ frame_needed = 1, uses_anonymous_args = 0
+ 320 0000 80B5     		push	{r7, lr}
+ 321              	.LCFI3:
+ 322              		.cfi_def_cfa_offset 8
+ 323              		.cfi_offset 7, -8
+ 324              		.cfi_offset 14, -4
+ 325 0002 86B0     		sub	sp, sp, #24
+ 326              	.LCFI4:
+ 327              		.cfi_def_cfa_offset 32
+ 328 0004 00AF     		add	r7, sp, #0
+ 329              	.LCFI5:
+ 330              		.cfi_def_cfa_register 7
+ 331 0006 7860     		str	r0, [r7, #4]
+ 213:App/Common/Minimal/BlockQ.c **** unsigned short usValue = 0;
+ 332              		.loc 1 213 0
+ 333 0008 4FF00003 		mov	r3, #0
+ 334 000c FB81     		strh	r3, [r7, #14]	@ movhi
+ 214:App/Common/Minimal/BlockQ.c **** xBlockingQueueParameters *pxQueueParameters;
+ 215:App/Common/Minimal/BlockQ.c **** short sErrorEverOccurred = pdFALSE;
+ 335              		.loc 1 215 0
+ 336 000e 4FF00003 		mov	r3, #0
+ 337 0012 FB82     		strh	r3, [r7, #22]	@ movhi
+ 216:App/Common/Minimal/BlockQ.c **** 
+ 217:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters = ( xBlockingQueueParameters * ) pvParameters;
+ 338              		.loc 1 217 0
+ 339 0014 7B68     		ldr	r3, [r7, #4]
+ 340 0016 3B61     		str	r3, [r7, #16]
+ 341              	.L8:
+ 218:App/Common/Minimal/BlockQ.c **** 
+ 219:App/Common/Minimal/BlockQ.c **** 	for( ;; )
+ 220:App/Common/Minimal/BlockQ.c **** 	{		
+ 221:App/Common/Minimal/BlockQ.c **** 		if( xQueueSend( pxQueueParameters->xQueue, ( void * ) &usValue, pxQueueParameters->xBlockTime ) !
+ 342              		.loc 1 221 0
+ 343 0018 3B69     		ldr	r3, [r7, #16]
+ 344 001a 1968     		ldr	r1, [r3, #0]
+ 345 001c 3B69     		ldr	r3, [r7, #16]
+ 346 001e 5B68     		ldr	r3, [r3, #4]
+ 347 0020 07F10E02 		add	r2, r7, #14
+ 348 0024 0846     		mov	r0, r1
+ 349 0026 1146     		mov	r1, r2
+ 350 0028 1A46     		mov	r2, r3
+ 351 002a 4FF00003 		mov	r3, #0
+ 352 002e FFF7FEFF 		bl	xQueueGenericSend
+ 353 0032 0346     		mov	r3, r0
+ 354 0034 012B     		cmp	r3, #1
+ 355 0036 03D0     		beq	.L5
+ 222:App/Common/Minimal/BlockQ.c **** 		{
+ 223:App/Common/Minimal/BlockQ.c **** 			sErrorEverOccurred = pdTRUE;
+ 356              		.loc 1 223 0
+ 357 0038 4FF00103 		mov	r3, #1
+ 358 003c FB82     		strh	r3, [r7, #22]	@ movhi
+ 224:App/Common/Minimal/BlockQ.c **** 		}
+ 225:App/Common/Minimal/BlockQ.c **** 		else
+ 226:App/Common/Minimal/BlockQ.c **** 		{
+ 227:App/Common/Minimal/BlockQ.c **** 			/* We have successfully posted a message, so increment the variable
+ 228:App/Common/Minimal/BlockQ.c **** 			used to check we are still running. */
+ 229:App/Common/Minimal/BlockQ.c **** 			if( sErrorEverOccurred == pdFALSE )
+ 230:App/Common/Minimal/BlockQ.c **** 			{
+ 231:App/Common/Minimal/BlockQ.c **** 				( *pxQueueParameters->psCheckVariable )++;
+ 232:App/Common/Minimal/BlockQ.c **** 			}
+ 233:App/Common/Minimal/BlockQ.c **** 
+ 234:App/Common/Minimal/BlockQ.c **** 			/* Increment the variable we are going to post next time round.  The
+ 235:App/Common/Minimal/BlockQ.c **** 			consumer will expect the numbers to	follow in numerical order. */
+ 236:App/Common/Minimal/BlockQ.c **** 			++usValue;
+ 237:App/Common/Minimal/BlockQ.c **** 		}
+ 238:App/Common/Minimal/BlockQ.c **** 	}
+ 359              		.loc 1 238 0
+ 360 003e EBE7     		b	.L8
+ 361              	.L5:
+ 229:App/Common/Minimal/BlockQ.c **** 			if( sErrorEverOccurred == pdFALSE )
+ 362              		.loc 1 229 0
+ 363 0040 B7F91630 		ldrsh	r3, [r7, #22]
+ 364 0044 002B     		cmp	r3, #0
+ 365 0046 07D1     		bne	.L7
+ 231:App/Common/Minimal/BlockQ.c **** 				( *pxQueueParameters->psCheckVariable )++;
+ 366              		.loc 1 231 0
+ 367 0048 3B69     		ldr	r3, [r7, #16]
+ 368 004a 9B68     		ldr	r3, [r3, #8]
+ 369 004c 1A88     		ldrh	r2, [r3, #0]	@ movhi
+ 370 004e 92B2     		uxth	r2, r2
+ 371 0050 02F10102 		add	r2, r2, #1
+ 372 0054 92B2     		uxth	r2, r2
+ 373 0056 1A80     		strh	r2, [r3, #0]	@ movhi
+ 374              	.L7:
+ 236:App/Common/Minimal/BlockQ.c **** 			++usValue;
+ 375              		.loc 1 236 0
+ 376 0058 FB89     		ldrh	r3, [r7, #14]
+ 377 005a 03F10103 		add	r3, r3, #1
+ 378 005e 9BB2     		uxth	r3, r3
+ 379 0060 FB81     		strh	r3, [r7, #14]	@ movhi
+ 380              		.loc 1 238 0
+ 381 0062 D9E7     		b	.L8
+ 382              		.cfi_endproc
+ 383              	.LFE111:
+ 385              		.section	.text.vBlockingQueueConsumer,"ax",%progbits
+ 386              		.align	2
+ 387              		.thumb
+ 388              		.thumb_func
+ 390              	vBlockingQueueConsumer:
+ 391              	.LFB112:
+ 239:App/Common/Minimal/BlockQ.c **** }
+ 240:App/Common/Minimal/BlockQ.c **** /*-----------------------------------------------------------*/
+ 241:App/Common/Minimal/BlockQ.c **** 
+ 242:App/Common/Minimal/BlockQ.c **** static portTASK_FUNCTION( vBlockingQueueConsumer, pvParameters )
+ 243:App/Common/Minimal/BlockQ.c **** {
+ 392              		.loc 1 243 0
+ 393              		.cfi_startproc
+ 394              		@ args = 0, pretend = 0, frame = 24
+ 395              		@ frame_needed = 1, uses_anonymous_args = 0
+ 396 0000 80B5     		push	{r7, lr}
+ 397              	.LCFI6:
+ 398              		.cfi_def_cfa_offset 8
+ 399              		.cfi_offset 7, -8
+ 400              		.cfi_offset 14, -4
+ 401 0002 86B0     		sub	sp, sp, #24
+ 402              	.LCFI7:
+ 403              		.cfi_def_cfa_offset 32
+ 404 0004 00AF     		add	r7, sp, #0
+ 405              	.LCFI8:
+ 406              		.cfi_def_cfa_register 7
+ 407 0006 7860     		str	r0, [r7, #4]
+ 244:App/Common/Minimal/BlockQ.c **** unsigned short usData, usExpectedValue = 0;
+ 408              		.loc 1 244 0
+ 409 0008 4FF00003 		mov	r3, #0
+ 410 000c FB82     		strh	r3, [r7, #22]	@ movhi
+ 245:App/Common/Minimal/BlockQ.c **** xBlockingQueueParameters *pxQueueParameters;
+ 246:App/Common/Minimal/BlockQ.c **** short sErrorEverOccurred = pdFALSE;
+ 411              		.loc 1 246 0
+ 412 000e 4FF00003 		mov	r3, #0
+ 413 0012 BB82     		strh	r3, [r7, #20]	@ movhi
+ 247:App/Common/Minimal/BlockQ.c **** 
+ 248:App/Common/Minimal/BlockQ.c **** 	pxQueueParameters = ( xBlockingQueueParameters * ) pvParameters;
+ 414              		.loc 1 248 0
+ 415 0014 7B68     		ldr	r3, [r7, #4]
+ 416 0016 3B61     		str	r3, [r7, #16]
+ 417 0018 00E0     		b	.L13
+ 418              	.L14:
+ 249:App/Common/Minimal/BlockQ.c **** 
+ 250:App/Common/Minimal/BlockQ.c **** 	for( ;; )
+ 251:App/Common/Minimal/BlockQ.c **** 	{	
+ 252:App/Common/Minimal/BlockQ.c **** 		if( xQueueReceive( pxQueueParameters->xQueue, &usData, pxQueueParameters->xBlockTime ) == pdPASS 
+ 253:App/Common/Minimal/BlockQ.c **** 		{
+ 254:App/Common/Minimal/BlockQ.c **** 			if( usData != usExpectedValue )
+ 255:App/Common/Minimal/BlockQ.c **** 			{
+ 256:App/Common/Minimal/BlockQ.c **** 				/* Catch-up. */
+ 257:App/Common/Minimal/BlockQ.c **** 				usExpectedValue = usData;
+ 258:App/Common/Minimal/BlockQ.c **** 
+ 259:App/Common/Minimal/BlockQ.c **** 				sErrorEverOccurred = pdTRUE;
+ 260:App/Common/Minimal/BlockQ.c **** 			}
+ 261:App/Common/Minimal/BlockQ.c **** 			else
+ 262:App/Common/Minimal/BlockQ.c **** 			{
+ 263:App/Common/Minimal/BlockQ.c **** 				/* We have successfully received a message, so increment the
+ 264:App/Common/Minimal/BlockQ.c **** 				variable used to check we are still running. */	
+ 265:App/Common/Minimal/BlockQ.c **** 				if( sErrorEverOccurred == pdFALSE )
+ 266:App/Common/Minimal/BlockQ.c **** 				{
+ 267:App/Common/Minimal/BlockQ.c **** 					( *pxQueueParameters->psCheckVariable )++;
+ 268:App/Common/Minimal/BlockQ.c **** 				}
+ 269:App/Common/Minimal/BlockQ.c **** 							
+ 270:App/Common/Minimal/BlockQ.c **** 				/* Increment the value we expect to remove from the queue next time
+ 271:App/Common/Minimal/BlockQ.c **** 				round. */
+ 272:App/Common/Minimal/BlockQ.c **** 				++usExpectedValue;
+ 273:App/Common/Minimal/BlockQ.c **** 			}			
+ 274:App/Common/Minimal/BlockQ.c **** 		}		
+ 275:App/Common/Minimal/BlockQ.c **** 	}
+ 419              		.loc 1 275 0
+ 420 001a 00BF     		nop
+ 421              	.L13:
+ 252:App/Common/Minimal/BlockQ.c **** 		if( xQueueReceive( pxQueueParameters->xQueue, &usData, pxQueueParameters->xBlockTime ) == pdPASS 
+ 422              		.loc 1 252 0
+ 423 001c 3B69     		ldr	r3, [r7, #16]
+ 424 001e 1968     		ldr	r1, [r3, #0]
+ 425 0020 3B69     		ldr	r3, [r7, #16]
+ 426 0022 5B68     		ldr	r3, [r3, #4]
+ 427 0024 07F10E02 		add	r2, r7, #14
+ 428 0028 0846     		mov	r0, r1
+ 429 002a 1146     		mov	r1, r2
+ 430 002c 1A46     		mov	r2, r3
+ 431 002e 4FF00003 		mov	r3, #0
+ 432 0032 FFF7FEFF 		bl	xQueueGenericReceive
+ 433 0036 0346     		mov	r3, r0
+ 434 0038 012B     		cmp	r3, #1
+ 435 003a EED1     		bne	.L14
+ 254:App/Common/Minimal/BlockQ.c **** 			if( usData != usExpectedValue )
+ 436              		.loc 1 254 0
+ 437 003c FB89     		ldrh	r3, [r7, #14]
+ 438 003e FA8A     		ldrh	r2, [r7, #22]
+ 439 0040 9A42     		cmp	r2, r3
+ 440 0042 05D0     		beq	.L11
+ 257:App/Common/Minimal/BlockQ.c **** 				usExpectedValue = usData;
+ 441              		.loc 1 257 0
+ 442 0044 FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 443 0046 FB82     		strh	r3, [r7, #22]	@ movhi
+ 259:App/Common/Minimal/BlockQ.c **** 				sErrorEverOccurred = pdTRUE;
+ 444              		.loc 1 259 0
+ 445 0048 4FF00103 		mov	r3, #1
+ 446 004c BB82     		strh	r3, [r7, #20]	@ movhi
+ 447              		.loc 1 275 0
+ 448 004e E4E7     		b	.L14
+ 449              	.L11:
+ 265:App/Common/Minimal/BlockQ.c **** 				if( sErrorEverOccurred == pdFALSE )
+ 450              		.loc 1 265 0
+ 451 0050 B7F91430 		ldrsh	r3, [r7, #20]
+ 452 0054 002B     		cmp	r3, #0
+ 453 0056 07D1     		bne	.L12
+ 267:App/Common/Minimal/BlockQ.c **** 					( *pxQueueParameters->psCheckVariable )++;
+ 454              		.loc 1 267 0
+ 455 0058 3B69     		ldr	r3, [r7, #16]
+ 456 005a 9B68     		ldr	r3, [r3, #8]
+ 457 005c 1A88     		ldrh	r2, [r3, #0]	@ movhi
+ 458 005e 92B2     		uxth	r2, r2
+ 459 0060 02F10102 		add	r2, r2, #1
+ 460 0064 92B2     		uxth	r2, r2
+ 461 0066 1A80     		strh	r2, [r3, #0]	@ movhi
+ 462              	.L12:
+ 272:App/Common/Minimal/BlockQ.c **** 				++usExpectedValue;
+ 463              		.loc 1 272 0
+ 464 0068 FB8A     		ldrh	r3, [r7, #22]	@ movhi
+ 465 006a 03F10103 		add	r3, r3, #1
+ 466 006e FB82     		strh	r3, [r7, #22]	@ movhi
+ 467              		.loc 1 275 0
+ 468 0070 D3E7     		b	.L14
+ 469              		.cfi_endproc
+ 470              	.LFE112:
+ 472 0072 00BF     		.section	.text.xAreBlockingQueuesStillRunning,"ax",%progbits
+ 473              		.align	2
+ 474              		.global	xAreBlockingQueuesStillRunning
+ 475              		.thumb
+ 476              		.thumb_func
+ 478              	xAreBlockingQueuesStillRunning:
+ 479              	.LFB113:
+ 276:App/Common/Minimal/BlockQ.c **** }
+ 277:App/Common/Minimal/BlockQ.c **** /*-----------------------------------------------------------*/
+ 278:App/Common/Minimal/BlockQ.c **** 
+ 279:App/Common/Minimal/BlockQ.c **** /* This is called to check that all the created tasks are still running. */
+ 280:App/Common/Minimal/BlockQ.c **** portBASE_TYPE xAreBlockingQueuesStillRunning( void )
+ 281:App/Common/Minimal/BlockQ.c **** {
+ 480              		.loc 1 281 0
+ 481              		.cfi_startproc
+ 482              		@ args = 0, pretend = 0, frame = 8
+ 483              		@ frame_needed = 1, uses_anonymous_args = 0
+ 484              		@ link register save eliminated.
+ 485 0000 80B4     		push	{r7}
+ 486              	.LCFI9:
+ 487              		.cfi_def_cfa_offset 4
+ 488              		.cfi_offset 7, -4
+ 489 0002 83B0     		sub	sp, sp, #12
+ 490              	.LCFI10:
+ 491              		.cfi_def_cfa_offset 16
+ 492 0004 00AF     		add	r7, sp, #0
+ 493              	.LCFI11:
+ 494              		.cfi_def_cfa_register 7
+ 282:App/Common/Minimal/BlockQ.c **** static short sLastBlockingConsumerCount[ blckqNUM_TASK_SETS ] = { ( unsigned short ) 0, ( unsigned 
+ 283:App/Common/Minimal/BlockQ.c **** static short sLastBlockingProducerCount[ blckqNUM_TASK_SETS ] = { ( unsigned short ) 0, ( unsigned 
+ 284:App/Common/Minimal/BlockQ.c **** portBASE_TYPE xReturn = pdPASS, xTasks;
+ 495              		.loc 1 284 0
+ 496 0006 4FF00103 		mov	r3, #1
+ 497 000a 7B60     		str	r3, [r7, #4]
+ 285:App/Common/Minimal/BlockQ.c **** 
+ 286:App/Common/Minimal/BlockQ.c **** 	/* Not too worried about mutual exclusion on these variables as they are 16
+ 287:App/Common/Minimal/BlockQ.c **** 	bits and we are only reading them. We also only care to see if they have
+ 288:App/Common/Minimal/BlockQ.c **** 	changed or not.
+ 289:App/Common/Minimal/BlockQ.c **** 	
+ 290:App/Common/Minimal/BlockQ.c **** 	Loop through each check variable to and return pdFALSE if any are found not
+ 291:App/Common/Minimal/BlockQ.c **** 	to have changed since the last call. */
+ 292:App/Common/Minimal/BlockQ.c **** 
+ 293:App/Common/Minimal/BlockQ.c **** 	for( xTasks = 0; xTasks < blckqNUM_TASK_SETS; xTasks++ )
+ 498              		.loc 1 293 0
+ 499 000c 4FF00003 		mov	r3, #0
+ 500 0010 3B60     		str	r3, [r7, #0]
+ 501 0012 4DE0     		b	.L16
+ 502              	.L19:
+ 294:App/Common/Minimal/BlockQ.c **** 	{
+ 295:App/Common/Minimal/BlockQ.c **** 		if( sBlockingConsumerCount[ xTasks ] == sLastBlockingConsumerCount[ xTasks ]  )
+ 503              		.loc 1 295 0
+ 504 0014 40F20003 		movw	r3, #:lower16:sBlockingConsumerCount
+ 505 0018 C0F20003 		movt	r3, #:upper16:sBlockingConsumerCount
+ 506 001c 3A68     		ldr	r2, [r7, #0]
+ 507 001e 33F81230 		ldrh	r3, [r3, r2, lsl #1]	@ movhi
+ 508 0022 9AB2     		uxth	r2, r3
+ 509 0024 40F20003 		movw	r3, #:lower16:sLastBlockingConsumerCount.8232
+ 510 0028 C0F20003 		movt	r3, #:upper16:sLastBlockingConsumerCount.8232
+ 511 002c 3968     		ldr	r1, [r7, #0]
+ 512 002e 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 513 0032 12B2     		sxth	r2, r2
+ 514 0034 1BB2     		sxth	r3, r3
+ 515 0036 9A42     		cmp	r2, r3
+ 516 0038 02D1     		bne	.L17
+ 296:App/Common/Minimal/BlockQ.c **** 		{
+ 297:App/Common/Minimal/BlockQ.c **** 			xReturn = pdFALSE;
+ 517              		.loc 1 297 0
+ 518 003a 4FF00003 		mov	r3, #0
+ 519 003e 7B60     		str	r3, [r7, #4]
+ 520              	.L17:
+ 298:App/Common/Minimal/BlockQ.c **** 		}
+ 299:App/Common/Minimal/BlockQ.c **** 		sLastBlockingConsumerCount[ xTasks ] = sBlockingConsumerCount[ xTasks ];
+ 521              		.loc 1 299 0
+ 522 0040 40F20003 		movw	r3, #:lower16:sBlockingConsumerCount
+ 523 0044 C0F20003 		movt	r3, #:upper16:sBlockingConsumerCount
+ 524 0048 3A68     		ldr	r2, [r7, #0]
+ 525 004a 33F81230 		ldrh	r3, [r3, r2, lsl #1]	@ movhi
+ 526 004e 99B2     		uxth	r1, r3
+ 527 0050 40F20003 		movw	r3, #:lower16:sLastBlockingConsumerCount.8232
+ 528 0054 C0F20003 		movt	r3, #:upper16:sLastBlockingConsumerCount.8232
+ 529 0058 3A68     		ldr	r2, [r7, #0]
+ 530 005a 23F81210 		strh	r1, [r3, r2, lsl #1]	@ movhi
+ 300:App/Common/Minimal/BlockQ.c **** 
+ 301:App/Common/Minimal/BlockQ.c **** 
+ 302:App/Common/Minimal/BlockQ.c **** 		if( sBlockingProducerCount[ xTasks ] == sLastBlockingProducerCount[ xTasks ]  )
+ 531              		.loc 1 302 0
+ 532 005e 40F20003 		movw	r3, #:lower16:sBlockingProducerCount
+ 533 0062 C0F20003 		movt	r3, #:upper16:sBlockingProducerCount
+ 534 0066 3A68     		ldr	r2, [r7, #0]
+ 535 0068 33F81230 		ldrh	r3, [r3, r2, lsl #1]	@ movhi
+ 536 006c 9AB2     		uxth	r2, r3
+ 537 006e 40F20003 		movw	r3, #:lower16:sLastBlockingProducerCount.8233
+ 538 0072 C0F20003 		movt	r3, #:upper16:sLastBlockingProducerCount.8233
+ 539 0076 3968     		ldr	r1, [r7, #0]
+ 540 0078 33F81130 		ldrh	r3, [r3, r1, lsl #1]
+ 541 007c 12B2     		sxth	r2, r2
+ 542 007e 1BB2     		sxth	r3, r3
+ 543 0080 9A42     		cmp	r2, r3
+ 544 0082 02D1     		bne	.L18
+ 303:App/Common/Minimal/BlockQ.c **** 		{
+ 304:App/Common/Minimal/BlockQ.c **** 			xReturn = pdFALSE;
+ 545              		.loc 1 304 0
+ 546 0084 4FF00003 		mov	r3, #0
+ 547 0088 7B60     		str	r3, [r7, #4]
+ 548              	.L18:
+ 305:App/Common/Minimal/BlockQ.c **** 		}
+ 306:App/Common/Minimal/BlockQ.c **** 		sLastBlockingProducerCount[ xTasks ] = sBlockingProducerCount[ xTasks ];
+ 549              		.loc 1 306 0
+ 550 008a 40F20003 		movw	r3, #:lower16:sBlockingProducerCount
+ 551 008e C0F20003 		movt	r3, #:upper16:sBlockingProducerCount
+ 552 0092 3A68     		ldr	r2, [r7, #0]
+ 553 0094 33F81230 		ldrh	r3, [r3, r2, lsl #1]	@ movhi
+ 554 0098 99B2     		uxth	r1, r3
+ 555 009a 40F20003 		movw	r3, #:lower16:sLastBlockingProducerCount.8233
+ 556 009e C0F20003 		movt	r3, #:upper16:sLastBlockingProducerCount.8233
+ 557 00a2 3A68     		ldr	r2, [r7, #0]
+ 558 00a4 23F81210 		strh	r1, [r3, r2, lsl #1]	@ movhi
+ 293:App/Common/Minimal/BlockQ.c **** 	for( xTasks = 0; xTasks < blckqNUM_TASK_SETS; xTasks++ )
+ 559              		.loc 1 293 0
+ 560 00a8 3B68     		ldr	r3, [r7, #0]
+ 561 00aa 03F10103 		add	r3, r3, #1
+ 562 00ae 3B60     		str	r3, [r7, #0]
+ 563              	.L16:
+ 293:App/Common/Minimal/BlockQ.c **** 	for( xTasks = 0; xTasks < blckqNUM_TASK_SETS; xTasks++ )
+ 564              		.loc 1 293 0 is_stmt 0 discriminator 1
+ 565 00b0 3B68     		ldr	r3, [r7, #0]
+ 566 00b2 022B     		cmp	r3, #2
+ 567 00b4 AEDD     		ble	.L19
+ 307:App/Common/Minimal/BlockQ.c **** 	}
+ 308:App/Common/Minimal/BlockQ.c **** 
+ 309:App/Common/Minimal/BlockQ.c **** 	return xReturn;
+ 568              		.loc 1 309 0 is_stmt 1
+ 569 00b6 7B68     		ldr	r3, [r7, #4]
+ 310:App/Common/Minimal/BlockQ.c **** }
+ 570              		.loc 1 310 0
+ 571 00b8 1846     		mov	r0, r3
+ 572 00ba 07F10C07 		add	r7, r7, #12
+ 573 00be BD46     		mov	sp, r7
+ 574 00c0 80BC     		pop	{r7}
+ 575 00c2 7047     		bx	lr
+ 576              		.cfi_endproc
+ 577              	.LFE113:
+ 579              		.section	.bss.sLastBlockingConsumerCount.8232,"aw",%nobits
+ 580              		.align	2
+ 583              	sLastBlockingConsumerCount.8232:
+ 584 0000 00000000 		.space	6
+ 584      0000
+ 585 0006 0000     		.section	.bss.sLastBlockingProducerCount.8233,"aw",%nobits
+ 586              		.align	2
+ 589              	sLastBlockingProducerCount.8233:
+ 590 0000 00000000 		.space	6
+ 590      0000
+ 591 0006 0000     		.text
+ 592              	.Letext0:
+ 593              		.file 2 "/home/thanhtruong/embedded-development/toolchain/gcc-arm-none-eabi-4_7-2013q1/bin/../lib/
+ 594              		.file 3 "Source/portable/GCC/ARM_CM4F/portmacro.h"
+ 595              		.file 4 "Source/include/queue.h"
+ 596              		.file 5 "App/STM32F4-Discovery/Libraries/CMSIS/Include/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 BlockQ.c
+     /tmp/ccGoTokh.s:20     .bss.sBlockingConsumerCount:00000000 $d
+     /tmp/ccGoTokh.s:23     .bss.sBlockingConsumerCount:00000000 sBlockingConsumerCount
+     /tmp/ccGoTokh.s:26     .bss.sBlockingProducerCount:00000000 $d
+     /tmp/ccGoTokh.s:29     .bss.sBlockingProducerCount:00000000 sBlockingProducerCount
+     /tmp/ccGoTokh.s:32     .rodata:00000000 $d
+     /tmp/ccGoTokh.s:33     .rodata:00000000 .LC0
+     /tmp/ccGoTokh.s:36     .rodata:00000008 .LC1
+     /tmp/ccGoTokh.s:39     .rodata:00000010 .LC2
+     /tmp/ccGoTokh.s:42     .rodata:00000018 .LC3
+     /tmp/ccGoTokh.s:45     .rodata:00000020 .LC4
+     /tmp/ccGoTokh.s:48     .rodata:00000028 .LC5
+     /tmp/ccGoTokh.s:51     .text.vStartBlockingQueueTasks:00000000 $t
+     /tmp/ccGoTokh.s:56     .text.vStartBlockingQueueTasks:00000000 vStartBlockingQueueTasks
+     /tmp/ccGoTokh.s:390    .text.vBlockingQueueConsumer:00000000 vBlockingQueueConsumer
+     /tmp/ccGoTokh.s:314    .text.vBlockingQueueProducer:00000000 vBlockingQueueProducer
+     /tmp/ccGoTokh.s:302    .text.vStartBlockingQueueTasks:00000234 $d
+     /tmp/ccGoTokh.s:310    .text.vBlockingQueueProducer:00000000 $t
+     /tmp/ccGoTokh.s:386    .text.vBlockingQueueConsumer:00000000 $t
+     /tmp/ccGoTokh.s:473    .text.xAreBlockingQueuesStillRunning:00000000 $t
+     /tmp/ccGoTokh.s:478    .text.xAreBlockingQueuesStillRunning:00000000 xAreBlockingQueuesStillRunning
+     /tmp/ccGoTokh.s:583    .bss.sLastBlockingConsumerCount.8232:00000000 sLastBlockingConsumerCount.8232
+     /tmp/ccGoTokh.s:589    .bss.sLastBlockingProducerCount.8233:00000000 sLastBlockingProducerCount.8233
+     /tmp/ccGoTokh.s:580    .bss.sLastBlockingConsumerCount.8232:00000000 $d
+     /tmp/ccGoTokh.s:586    .bss.sLastBlockingProducerCount.8233:00000000 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+pvPortMalloc
+xQueueGenericCreate
+xTaskGenericCreate
+xQueueGenericSend
+xQueueGenericReceive
